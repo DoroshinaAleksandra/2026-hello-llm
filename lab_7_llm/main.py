@@ -55,13 +55,24 @@ class RawDataPreprocessor(AbstractRawDataPreprocessor):
         Returns:
             dict: Dataset key properties
         """
+        dataset_properties = {
+            'dataset_number_of_samples' : len(self._raw_data),
+            'dataset_columns' : len(self._raw_data.columns),
+            'dataset_duplicates' : self._raw_data.duplicated().sum(),
+            'dataset_empty_rows' : self._raw_data.isna().any(axis=1).sum(),
+            'dataset_sample_min_len' : self._data[ColumnNames.SOURCE.value].str.len().min(),
+            'dataset_sample_max_len' : self._data[ColumnNames.SOURCE.value].str.len().max()
+        }
+
+        return dataset_properties
 
     @report_time
     def transform(self) -> None:
         """
         Apply preprocessing transformations to the raw dataset.
         """
-        data = self._raw_data.rename(columns={
+        data = self._raw_data.dropna()
+        data = data.rename(columns={
             'en': ColumnNames.SOURCE.value, 
             'fr': ColumnNames.TARGET.value})
         

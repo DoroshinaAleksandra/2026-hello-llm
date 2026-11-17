@@ -27,6 +27,10 @@ def main() -> None:
     preprocessor = RawDataPreprocessor(importer.raw_data)
     preprocessor.transform()
     print(preprocessor.data)
+    dataset_properties = preprocessor.analyze()
+    print(dataset_properties)
+    #for k, v in dataset_properties.items():
+        #print(f'{k}: {v}')
 
     dataset = TaskDataset(preprocessor.data.iloc[: 100])
 
