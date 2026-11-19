@@ -14,6 +14,7 @@ import torch
 from datasets import load_dataset
 from pandas import DataFrame
 from torch.utils.data import Dataset
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 from core_utils.llm.llm_pipeline import AbstractLLMPipeline
 from core_utils.llm.metrics import Metrics
@@ -71,7 +72,7 @@ class RawDataPreprocessor(AbstractRawDataPreprocessor):
         """
         Apply preprocessing transformations to the raw dataset.
         """
-        data = self._raw_data.dropna()
+        data = self._raw_data.dropna(ignore_index=True)
         data = data.rename(columns={
             'en': ColumnNames.SOURCE.value, 
             'fr': ColumnNames.TARGET.value})
@@ -143,6 +144,10 @@ class LLMPipeline(AbstractLLMPipeline):
             batch_size (int): The size of the batch inside DataLoader
             device (str): The device for inference
         """
+        super().__init__(model_name, dataset, max_length, batch_size, device)
+        self._tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self._model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(device)
+
 
     @report_time
     def infer_sample(self, sample: tuple[str, ...]) -> str | None:
