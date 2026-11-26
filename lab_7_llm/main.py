@@ -39,7 +39,7 @@ class RawDataImporter(AbstractRawDataImporter):
         """
         raw_dataset = load_dataset(self._hf_name, split='test').to_pandas()
         if not isinstance(raw_dataset, pd.DataFrame):
-            raise TypeError('pd.DataFrame was expected not: {type(raw_dataset)}')
+            raise TypeError(f'pd.DataFrame was expected not: {type(raw_dataset)}')
 
         self._raw_data = raw_dataset
 
@@ -115,7 +115,8 @@ class TaskDataset(Dataset):
         Returns:
             tuple[str, ...]: The item to be received
         """
-        return (self._data.iloc[index],)
+        return (self._data[ColumnNames.SOURCE.value].iloc[index],
+                self._data[ColumnNames.TARGET.value].iloc[index])
 
     @property
     def data(self) -> DataFrame:
